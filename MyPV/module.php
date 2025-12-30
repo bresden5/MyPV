@@ -72,30 +72,30 @@ class MyPV extends IPSModule
         }
 
         // Variablen anlegen unter der ausgewählten Kategorie
-        foreach ($data as $key => $value) {
-            if ($value === null || $value === "" || strtolower($value) === "null") continue;
+		foreach ($data as $key => $value) {
+			if ($value === null || $value === "" || (is_string($value) && strtolower($value) === "null")) continue;
 
-            if (is_int($value)) $type = VARIABLETYPE_INTEGER;
-            elseif (is_float($value)) $type = VARIABLETYPE_FLOAT;
-            elseif (is_bool($value)) $type = VARIABLETYPE_BOOLEAN;
-            else $type = VARIABLETYPE_STRING;
+			if (is_int($value)) $type = VARIABLETYPE_INTEGER;
+			elseif (is_float($value)) $type = VARIABLETYPE_FLOAT;
+			elseif (is_bool($value)) $type = VARIABLETYPE_BOOLEAN;
+			else $type = VARIABLETYPE_STRING;
 
-            list($name, $value) = $this->FormatVariable($key, $value);
+			list($name, $value) = $this->FormatVariable($key, $value);
 
-            $vid = @IPS_GetVariableIDByName($name, $targetCategory);
-            if (!$vid) {
-                $vid = IPS_CreateVariable($type);
-                IPS_SetParent($vid, $targetCategory);
-                IPS_SetName($vid, $name);
-            }
+			$vid = @IPS_GetVariableIDByName($name, $targetCategory);
+			if (!$vid) {
+				$vid = IPS_CreateVariable($type);
+				IPS_SetParent($vid, $targetCategory);
+				IPS_SetName($vid, $name);
+			}
 
-            switch ($type) {
-                case VARIABLETYPE_BOOLEAN: SetValueBoolean($vid, $value); break;
-                case VARIABLETYPE_INTEGER: SetValueInteger($vid, $value); break;
-                case VARIABLETYPE_FLOAT: SetValueFloat($vid, $value); break;
-                case VARIABLETYPE_STRING: SetValueString($vid, $value); break;
-            }
-        }
+			switch ($type) {
+				case VARIABLETYPE_BOOLEAN: SetValueBoolean($vid, $value); break;
+				case VARIABLETYPE_INTEGER: SetValueInteger($vid, $value); break;
+				case VARIABLETYPE_FLOAT: SetValueFloat($vid, $value); break;
+				case VARIABLETYPE_STRING: SetValueString($vid, $value); break;
+			}
+		}
     }
 
     private function FormatVariable(string $key, $value): array
