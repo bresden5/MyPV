@@ -1,0 +1,12 @@
+{
+    "id": "{79D7EBBC-DD8D-83B8-8575-7B71534720FD}",
+    "name": "MyPV",
+    "type": 3,
+    "vendor": "",
+    "aliases": [],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "MP",
+    "url": "https://github.com/bresden5/IPSymcon-MyPV.git"
+}
