@@ -1,5 +1,27 @@
 {
-    "elements": [],
-    "actions": [],
-    "status": []
+  "elements": [
+    {
+      "type": "Label",
+      "caption": "MyPV AC•THOR 9s Integration"
+    },
+    {
+      "type": "ValidationTextBox",
+      "name": "APIToken",
+      "caption": "API Token"
+    },
+    {
+      "type": "ValidationTextBox",
+      "name": "SerialNumber",
+      "caption": "Seriennummer"
+    },
+    {
+      "type": "NumberSpinner",
+      "name": "RefreshInterval",
+      "caption": "Refresh Intervall (ms)",
+      "minimum": 1000,
+      "maximum": 60000,
+      "suffix": "ms"
+    }
+  ],
+  "actions": []
 }

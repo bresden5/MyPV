@@ -11,17 +11,18 @@ class MyPV extends IPSModule
         // Konfigurations-Eigenschaften
         $this->RegisterPropertyString("APIToken", "");
         $this->RegisterPropertyString("SerialNumber", "");
+        $this->RegisterPropertyInteger("RefreshInterval", 10000);
 
         // Timer für automatisches Aktualisieren
-        $this->RegisterTimer("RefreshTimer", 10000, 'MP_Refresh($_IPS["TARGET"]);'); // alle 10 Sekunden
+        $this->RegisterTimer("RefreshTimer", 10000, 'MP_Refresh($_IPS["TARGET"]);');
     }
 
     public function ApplyChanges(): void
     {
         parent::ApplyChanges();
 
-        // Timer aktivieren
-        $interval = 10000; // Intervall in ms
+        // Timer auf den aktuellen Refresh-Wert setzen
+        $interval = $this->ReadPropertyInteger("RefreshInterval");
         $this->SetTimerInterval("RefreshTimer", $interval);
     }
 
@@ -62,7 +63,7 @@ class MyPV extends IPSModule
             return;
         }
 
-        // Durch alle Daten iterieren und Variablen nur anlegen, wenn Werte vorhanden
+        // Variablen nur anlegen, wenn Daten vorhanden
         foreach ($data as $key => $value) {
             if ($value === null || $value === "" || strtolower($value) === "null") continue;
 
