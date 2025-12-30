@@ -12,6 +12,7 @@ class MyPV extends IPSModule
         $this->RegisterPropertyString("SerialNumber", "");
         $this->RegisterPropertyInteger("RefreshInterval", 10000);
         $this->RegisterPropertyInteger("TargetCategory", 0); // Kategorie-ID
+        $this->RegisterPropertyBoolean("EnableRefresh", true); // Abruf aktivieren/deaktivieren
 
         // Timer für automatisches Aktualisieren
         $this->RegisterTimer("RefreshTimer", 10000, 'MP_Refresh($_IPS["TARGET"]);');
@@ -28,6 +29,12 @@ class MyPV extends IPSModule
 
     public function Refresh(): void
     {
+        // Abruf prüfen
+        if (!$this->ReadPropertyBoolean("EnableRefresh")) {
+            $this->LogMessage("API-Abruf ist deaktiviert.", KL_MESSAGE);
+            return;
+        }
+
         $token = $this->ReadPropertyString("APIToken");
         $serial = $this->ReadPropertyString("SerialNumber");
         $targetCategory = $this->ReadPropertyInteger("TargetCategory");
@@ -75,7 +82,6 @@ class MyPV extends IPSModule
 
             list($name, $value) = $this->FormatVariable($key, $value);
 
-            // Variable anlegen unter TargetCategory
             $vid = @IPS_GetVariableIDByName($name, $targetCategory);
             if (!$vid) {
                 $vid = IPS_CreateVariable($type);
@@ -83,7 +89,6 @@ class MyPV extends IPSModule
                 IPS_SetName($vid, $name);
             }
 
-            // Wert setzen
             switch ($type) {
                 case VARIABLETYPE_BOOLEAN: SetValueBoolean($vid, $value); break;
                 case VARIABLETYPE_INTEGER: SetValueInteger($vid, $value); break;

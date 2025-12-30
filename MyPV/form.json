@@ -26,6 +26,11 @@
       "minimum": 1000,
       "maximum": 60000,
       "suffix": "ms"
+    },
+    {
+      "type": "CheckBox",
+      "name": "EnableRefresh",
+      "caption": "API-Abruf aktivieren"
     }
   ],
   "actions": []
