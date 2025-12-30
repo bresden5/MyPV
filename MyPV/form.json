@@ -15,6 +15,11 @@
       "caption": "Seriennummer"
     },
     {
+      "type": "SelectCategory",
+      "name": "TargetCategory",
+      "caption": "Kategorie für Variablen"
+    },
+    {
       "type": "NumberSpinner",
       "name": "RefreshInterval",
       "caption": "Refresh Intervall (ms)",

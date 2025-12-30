@@ -5,13 +5,13 @@ class MyPV extends IPSModule
 {
     public function Create(): void
     {
-        // Basis-Initialisierung
         parent::Create();
 
         // Konfigurations-Eigenschaften
         $this->RegisterPropertyString("APIToken", "");
         $this->RegisterPropertyString("SerialNumber", "");
         $this->RegisterPropertyInteger("RefreshInterval", 10000);
+        $this->RegisterPropertyInteger("TargetCategory", 0); // Kategorie-ID
 
         // Timer für automatisches Aktualisieren
         $this->RegisterTimer("RefreshTimer", 10000, 'MP_Refresh($_IPS["TARGET"]);');
@@ -26,22 +26,23 @@ class MyPV extends IPSModule
         $this->SetTimerInterval("RefreshTimer", $interval);
     }
 
-    /**
-     * Wird vom Timer aufgerufen
-     */
     public function Refresh(): void
     {
         $token = $this->ReadPropertyString("APIToken");
         $serial = $this->ReadPropertyString("SerialNumber");
+        $targetCategory = $this->ReadPropertyInteger("TargetCategory");
 
         if (empty($token) || empty($serial)) {
             $this->LogMessage("API-Token oder Seriennummer fehlt!", KL_WARNING);
             return;
         }
 
+        if ($targetCategory == 0) {
+            $targetCategory = $this->InstanceID; // Standard: unter Instanz
+        }
+
         $url = "https://api.my-pv.com/api/v1/device/$serial/data";
 
-        // cURL Anfrage
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -63,24 +64,22 @@ class MyPV extends IPSModule
             return;
         }
 
-        // Variablen nur anlegen, wenn Daten vorhanden
+        // Variablen anlegen unter der ausgewählten Kategorie
         foreach ($data as $key => $value) {
             if ($value === null || $value === "" || strtolower($value) === "null") continue;
 
-            // Typ bestimmen
             if (is_int($value)) $type = VARIABLETYPE_INTEGER;
             elseif (is_float($value)) $type = VARIABLETYPE_FLOAT;
             elseif (is_bool($value)) $type = VARIABLETYPE_BOOLEAN;
             else $type = VARIABLETYPE_STRING;
 
-            // Name + Skalierung
             list($name, $value) = $this->FormatVariable($key, $value);
 
-            // Variable anlegen, falls nicht vorhanden
-            $vid = @IPS_GetVariableIDByName($name, $this->InstanceID);
+            // Variable anlegen unter TargetCategory
+            $vid = @IPS_GetVariableIDByName($name, $targetCategory);
             if (!$vid) {
                 $vid = IPS_CreateVariable($type);
-                IPS_SetParent($vid, $this->InstanceID);
+                IPS_SetParent($vid, $targetCategory);
                 IPS_SetName($vid, $name);
             }
 
@@ -94,9 +93,6 @@ class MyPV extends IPSModule
         }
     }
 
-    /**
-     * Formatiert Variablennamen und passt Einheiten an
-     */
     private function FormatVariable(string $key, $value): array
     {
         $mapping = [
