@@ -61,9 +61,41 @@ class MyPV extends IPSModule
         curl_close($ch);
 
         if ($httpCode !== 200) {
-            $this->LogMessage("Fehler beim Abrufen von /data: HTTP $httpCode", KL_ERROR);
-            return;
-        }
+
+			switch ($httpCode) {
+				case 401:
+					$this->LogMessage("MyPV API: Ungültiger oder abgelaufener API-Token (401)", KL_ERROR);
+					break;
+
+				case 403:
+					$this->LogMessage("MyPV API: Zugriff verweigert (403) – Token prüfen", KL_ERROR);
+					break;
+
+				case 404:
+					$this->LogMessage("MyPV API: Gerät nicht gefunden (404) – Seriennummer prüfen", KL_ERROR);
+					break;
+
+				case 429:
+					$this->LogMessage("MyPV API: Rate Limit erreicht (429) – Intervall erhöhen!", KL_WARNING);
+					break;
+
+				case 502:
+					$this->LogMessage("MyPV API: Fehler unbekannt (502) – Lösung unbekannt!", KL_WARNING);
+					break;
+				case 503:
+					$this->LogMessage("MyPV API: Fehler unbekannt (503) – Lösung unbekannt!", KL_WARNING);
+					break;
+				case 504:
+					$this->LogMessage("MyPV Cloud temporär nicht erreichbar (HTTP $httpCode)", KL_WARNING);
+					break;
+
+				default:
+					$this->LogMessage("MyPV API Fehler: HTTP $httpCode", KL_ERROR);
+			}
+
+			return;
+		}
+
 
         $data = json_decode($response, true);
         if (!$data) {
